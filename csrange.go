@@ -10,7 +10,9 @@ import (
 // csr is comma separated range, e.g.: 1,4-39,199,200-201,400
 // because these are ranges using a dash, they are only meant
 // for positive integers.
-// Returned ints are sorted and unique.
+
+// Ints returns the slice of integers represented by the CSR. Any invalid
+// input results in an error. The result is a sorted and unique list.
 func Ints(csr string) ([]int, error) {
 	csr = strings.Trim(csr, ",")
 	ints := []int{}
@@ -52,7 +54,7 @@ func Ints(csr string) ([]int, error) {
 	return ii, nil
 }
 
-// uappend appends the element if it is uniqe
+// uappend appends the element if it is unique
 func uappend(slice []int, i int) []int {
 	for _, ele := range slice {
 		if ele == i {
@@ -62,7 +64,7 @@ func uappend(slice []int, i int) []int {
 	return append(slice, i)
 }
 
-// fmtRange formats a range or signle integer as a string based on the inputs
+// fmtRange formats a range or single integer as a string based on the inputs
 func fmtRange(start, end int) string {
 	if start == end {
 		return fmt.Sprintf("%d", start)
@@ -70,6 +72,8 @@ func fmtRange(start, end int) string {
 	return fmt.Sprintf("%d-%d", start, end)
 }
 
+// CSR produces an ordered, unique, and compact CSR representing
+// a slice of integers.
 func CSR(ss []int) string {
 	sort.Ints(ss)
 	ints := []int{}

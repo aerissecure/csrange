@@ -2,6 +2,7 @@ package csrange
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -98,4 +99,78 @@ func CSR(ss []int) string {
 		}
 	}
 	return strings.Join(csr, ",")
+}
+
+// Split divides the ints into n number of buckets
+func Split(n int, ints []int) [][]int {
+	if n == 0 {
+		return make([][]int, 0)
+	}
+
+	if n == 1 {
+		return [][]int{ints}
+	}
+
+	buckets := make([][]int, n)
+	for i, v := range ints {
+		buckets[i%n] = append(buckets[i%n], v)
+	}
+	return buckets
+}
+
+// SplitContig is like Split only it uses as many contiguous ints as it can to reduce the sice of the csr.
+func SplitContig(n int, ints []int) [][]int {
+	if n == 0 {
+		return make([][]int, 0)
+	}
+
+	if n == 1 {
+		return [][]int{ints}
+	}
+
+	count := int(math.Ceil(float64(len(ints)) / float64(n)))
+
+	buckets := make([][]int, n)
+	j := 0
+	for i := range buckets {
+		for ; j < len(ints); j++ {
+			// fmt.Println("i:", i, "j:", j, "count:", count, "mod:", (j+1)%count)
+			buckets[i] = append(buckets[i], ints[j])
+			if (j+1)%count == 0 {
+				j++
+				break
+			}
+		}
+	}
+	return buckets
+}
+
+// SplitString divides CSR string into n number of csr strings
+func SplitString(n int, csr string) ([]string, error) {
+	// parse csr:
+	ints, err := Ints(csr)
+	if err != nil {
+		return nil, err
+	}
+	buckets := Split(n, ints)
+	out := []string{}
+	for _, b := range buckets {
+		out = append(out, CSR(b))
+	}
+	return out, nil
+}
+
+// SplitString divides CSR string into n number of csr strings
+func SplitStringContig(n int, csr string) ([]string, error) {
+	// parse csr:
+	ints, err := Ints(csr)
+	if err != nil {
+		return nil, err
+	}
+	buckets := SplitContig(n, ints)
+	out := []string{}
+	for _, b := range buckets {
+		out = append(out, CSR(b))
+	}
+	return out, nil
 }
